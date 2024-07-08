@@ -22,9 +22,9 @@ define variable     typeItem        as character   initial "BB"                 
 define variable     statusItem      as character   initial "ACTIF"                          no-undo. /* pt_mstr.pt_status */
 define variable     pur_manItem     as character   initial "P"                              no-undo. /* pt_mstr.pt_pm_code */
 define variable     priceItem       as decimal     initial 0                                no-undo. /* pt_mstr.pt_price */
+define variable     confirmItem     as character   initial "Y"                              no-undo.
 
 form
-    
     "Item"                  colon 35                                        view-as text size 40 by 1
     skip(1)
     numItem                 colon 40   label "Item Number"                  format "x(15)" view-as fill-in size 15 by 1
@@ -47,6 +47,23 @@ form
     skip(1)
 with frame combinedframe side-labels width 100.
 
+form 
+    confirmItem             colon 40   label "Confirm the add of this item (Y/N)"         format "x(1)"  view-as fill-in size 1 by 1
+ with frame confirmframe side-labels width 100.   
+
+define frame displayitemframe
+    "Item Details verification" colon 35                                            view-as text size 40 by 1
+    skip(1)
+    numItem                     colon 40   label "Item Number"                      view-as text size 40 by 1
+    descItem                    colon 40   label "Description"                      view-as text size 40 by 1
+    prodLine                    colon 40   label "Prod Line"                        view-as text size 40 by 1
+    addedDate                   colon 40   label "Added"                            view-as text size 40 by 1
+    typeItem                    colon 40   label "Item Type"                        view-as text size 40 by 1
+    statusItem                  colon 40   label "Status"                           view-as text size 40 by 1
+    pur_manItem                 colon 40   label "Purchase/Manufacture"             view-as text size 40 by 1
+    priceItem                   colon 40   label "Price"                            view-as text size 40 by 1 
+    skip(1)
+with side-labels width 100.
 
 mainloop:
     repeat:
@@ -60,6 +77,22 @@ mainloop:
             pur_manItem
             priceItem
         with frame combinedframe.
+        hide FRAME combinedframe.
+        display
+            numItem
+            descItem 
+            prodLine
+            addedDate
+            typeItem
+            statusItem
+            pur_manItem
+            priceItem
+        with frame displayitemframe.
+        update
+            confirmItem
+        with frame confirmframe.
+        hide frame displayitemframe.
+        hide frame confirmframe.
     end. 
 
 
