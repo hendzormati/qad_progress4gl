@@ -17,11 +17,12 @@
 define variable     numItem         as character                                            no-undo. /* pt_mstr.pt_part */
 define variable     descItem        as character   initial "new item added from putty"      no-undo. /* pt_mstr.pt_desc1 */
 define variable     prodLine        as character   initial "Def"                            no-undo. /* pt_mstr.pt_prod_line */
-define variable     addedDate       as DATE        initial today                              no-undo. /* pt_mstr.pt_added */
+define variable     addedDate       as DATE        initial today                            no-undo. /* pt_mstr.pt_added */
 define variable     typeItem        as character   initial "BB"                             no-undo. /* pt_mstr.pt_part_type */
 define variable     statusItem      as character   initial "ACTIF"                          no-undo. /* pt_mstr.pt_status */
 define variable     pur_manItem     as character   initial "P"                              no-undo. /* pt_mstr.pt_pm_code */
 define variable     priceItem       as decimal     initial 0                                no-undo. /* pt_mstr.pt_price */
+define variable     valid           as LOGICAL                                              no-undo.
 define variable     confirmItem     as character   initial "Y"                              no-undo.
 
 form
@@ -64,7 +65,26 @@ define frame displayitemframe
     priceItem                   colon 40   label "Price"                            view-as text size 40 by 1 
     skip(1)
 with side-labels width 100.
+procedure verification:
+   define output parameter valid    as logical initial true no-undo.
 
+    find first pt_mstr where pt_part = numItem no-lock no-error.
+    if  available pt_mstr then do:
+        message "Item already exist." view-as ALERT-BOX ERROR.
+        valid=false.
+    end. 
+    find first pl_mstr where pl_prod_line = prodLine no-lock no-error.
+    if not  available pl_mstr then do:
+        message "Prod Line doesn't exist." view-as ALERT-BOX ERROR.
+        valid=false.
+    end. 
+    find first qad_wkfl where qad_key2 = statusItem no-lock no-error.
+    if not  available qad_wkfl then do:
+        message "Status doesn't exist." view-as ALERT-BOX ERROR.
+        valid=false.
+    end. 
+    
+end procedure.
 mainloop:
     repeat:
         update
@@ -78,6 +98,8 @@ mainloop:
             priceItem
         with frame combinedframe.
         hide FRAME combinedframe.
+        run verification(output valid).
+        if not valid then next.
         display
             numItem
             descItem 
