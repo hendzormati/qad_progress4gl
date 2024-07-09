@@ -14,6 +14,7 @@
 /*               !      !          |                                    */ 
 /*======================================================================*/ 
 
+
 define variable     numItem         as character                                            no-undo. /* pt_mstr.pt_part */
 define variable     descItem        as character   initial "new item added from putty"      no-undo. /* pt_mstr.pt_desc1 */
 define variable     prodLine        as character   initial "Def"                            no-undo. /* pt_mstr.pt_prod_line */
@@ -26,45 +27,47 @@ define variable     valid           as LOGICAL                                  
 define variable     confirmItem     as character   initial "Y"                              no-undo.
 
 form
-    "Item"                  colon 35                                        view-as text size 40 by 1
+    "New Item under the domain POLYMED :"             colon 35                                        view-as text size 40 by 1
     skip(1)
-    numItem                 colon 40   label "Item Number"                  format "x(15)" view-as fill-in size 15 by 1
-    descItem                colon 40   label "Description"                  format "x(30)" view-as fill-in size 30 by 1
+    numItem                                         colon 40   label "Item Number"                  format "x(15)" view-as fill-in size 15 by 1
+    descItem                                        colon 40   label "Description"                  format "x(30)" view-as fill-in size 30 by 1
     skip(1)
-    "Item Data"             colon 35                                        view-as text size 40 by 1
+    "Item Data"                                     colon 35                                        view-as text size 40 by 1
     skip(1)
-    prodLine                colon 40   label "Prod Line"                    format "x(10)" view-as fill-in size 10 by 1
-    addedDate               colon 40   label "Added"                        format "99/99/9999" view-as fill-in size 13 by 1
-    typeItem                colon 40   label "Item Type"                    format "x(10)" view-as fill-in size 10 by 1
-    statusItem              colon 40   label "Status"                       format "x(10)" view-as fill-in size 10 by 1
+    prodLine                                        colon 40   label "Prod Line"                    format "x(10)" view-as fill-in size 10 by 1
+    addedDate                                       colon 40   label "Added"                        format "99/99/9999" view-as fill-in size 13 by 1
+    typeItem                                        colon 40   label "Item Type"                    format "x(10)" view-as fill-in size 10 by 1
+    statusItem                                      colon 40   label "Status"                       format "x(10)" view-as fill-in size 10 by 1
     skip(1)
-    "Item Planning Data"    colon 35                                        view-as text size 40 by 1
+    "Item Planning Data"                            colon 35                                        view-as text size 40 by 1
     skip(1)
-    pur_manItem             colon 40   label "Purchase/Manufacture"         format "x(1)"  view-as fill-in size 1 by 1
+    pur_manItem                                     colon 40   label "Purchase/Manufacture"         format "x(1)"  view-as fill-in size 1 by 1
     skip(1)
-    "Item Price Data"       colon 35                                        view-as text size 40 by 1
+    "Item Price Data"                               colon 35                                        view-as text size 40 by 1
     skip(1)
-    priceItem               colon 40   label "Price"                         format "->,>>>,>>9.99" view-as fill-in size 15 by 1  
+    priceItem                                       colon 40   label "Price"                         format "->,>>>,>>9.99" view-as fill-in size 15 by 1  
     skip(1)
 with frame combinedframe side-labels width 100.
 
 form 
-    confirmItem             colon 40   label "Confirm the add of this item (Y/N)"         format "x(1)"  view-as fill-in size 1 by 1
+    confirmItem                                     colon 40   label "Confirm the add of this item (Y/N)"         format "x(1)"  view-as fill-in size 1 by 1
  with frame confirmframe side-labels width 100.   
 
 define frame displayitemframe
-    "Item Details verification" colon 35                                            view-as text size 40 by 1
+    "Item Details verification"                     colon 35                                          view-as text size 40 by 1
     skip(1)
-    numItem                     colon 40   label "Item Number"                      view-as text size 40 by 1
-    descItem                    colon 40   label "Description"                      view-as text size 40 by 1
-    prodLine                    colon 40   label "Prod Line"                        view-as text size 40 by 1
-    addedDate                   colon 40   label "Added"                            view-as text size 40 by 1
-    typeItem                    colon 40   label "Item Type"                        view-as text size 40 by 1
-    statusItem                  colon 40   label "Status"                           view-as text size 40 by 1
-    pur_manItem                 colon 40   label "Purchase/Manufacture"             view-as text size 40 by 1
-    priceItem                   colon 40   label "Price"                            view-as text size 40 by 1 
+    "Domain : POLYMED"                              colon 31                                          view-as text size 40 by 1
+    numItem                                         colon 40   label "Item Number"                    format "x(30)" view-as text size 40 by 1
+    descItem                                        colon 40   label "Description"                    format "x(100)" view-as text size 40 by 1
+    prodLine                                        colon 40   label "Prod Line"                      format "x(10)" view-as text size 40 by 1
+    addedDate                                       colon 40   label "Added"                          format "99/99/9999" view-as text size 40 by 1
+    typeItem                                        colon 40   label "Item Type"                      format "x(30)" view-as text size 40 by 1
+    statusItem                                      colon 40   label "Status"                         format "x(15)" view-as text size 40 by 1
+    pur_manItem                                     colon 40   label "Purchase/Manufacture"           format "x(1)" view-as text size 40 by 1
+    priceItem                                       colon 40   label "Price"                          format "->,>>>,>>9.99" view-as text size 40 by 1 
     skip(1)
 with side-labels width 100.
+
 procedure empty:
    define output parameter allFieldsFilled    as logical initial true no-undo.
     if numItem = "" then do:
@@ -106,12 +109,33 @@ procedure verification:
     else if not  available qad_wkfl then do:
         message "Status doesn't exist." view-as ALERT-BOX ERROR.
         valid=false.
-    end. 
-    
+    end.     
 end procedure.
-mainloop:
-    repeat:
-        update
+procedure init:
+    numItem = "".
+    descItem = "new item added from putty".
+    prodLine = "Def".
+    addedDate = TODAY.
+    typeItem = "BB".
+    statusItem = "ACTIF".
+    pur_manItem = "P".
+    priceItem = 0.
+    confirmItem="Y".
+end procedure.
+procedure inputform:
+    update
+        numItem
+        descItem 
+        prodLine
+        addedDate
+        typeItem
+        statusItem
+        pur_manItem
+        priceItem
+    with frame combinedframe.
+end procedure.
+procedure display:
+    display
             numItem
             descItem 
             prodLine
@@ -120,27 +144,44 @@ mainloop:
             statusItem
             pur_manItem
             priceItem
-        with frame combinedframe.
+    with frame displayitemframe.
+end procedure.
+procedure additem:
+   create pt_mstr.
+   assign
+        pt_domain     = "POLYMED"
+        pt_part       = numItem
+        pt_desc1      = descItem
+        pt_prod_line  = prodLine
+        pt_added      = addedDate
+        pt_part_type  = typeItem
+        pt_status     = statusItem
+        pt_pm_code    = pur_manItem
+        pt_price      = priceItem.  
+    release pt_mstr.  
+    message "item " numItem " added succefully." view-as ALERT-BOX ERROR.    
+end procedure.
+
+mainloop:
+    repeat:
+        run inputform.
         hide FRAME combinedframe.
         run empty(output valid).
         if not valid then next.
         run verification(output valid).
         if not valid then next.
-        display
-            numItem
-            descItem 
-            prodLine
-            addedDate
-            typeItem
-            statusItem
-            pur_manItem
-            priceItem
-        with frame displayitemframe.
+        run display.
         update
             confirmItem
         with frame confirmframe.
+        if confirmItem = "Y" then do :
+            run additem.
+            run init.
+        end.
         hide frame displayitemframe.
         hide frame confirmframe.
+        
+        
     end. 
 
 
