@@ -19,7 +19,7 @@ define variable     descItem        as character   initial "new item added from 
 define variable     prodLine        as character   initial "Def"                            no-undo. /* pt_mstr.pt_prod_line */
 define variable     addedDate       as DATE        initial today                            no-undo. /* pt_mstr.pt_added */
 define variable     typeItem        as character   initial "BB"                             no-undo. /* pt_mstr.pt_part_type */
-define variable     statusItem      as character   initial "ACTIF"                          no-undo. /* pt_mstr.pt_status */
+define variable     statusItem      as character   initial "ACTif"                          no-undo. /* pt_mstr.pt_status */
 define variable     pur_manItem     as character   initial "P"                              no-undo. /* pt_mstr.pt_pm_code */
 define variable     priceItem       as decimal     initial 0                                no-undo. /* pt_mstr.pt_price */
 define variable     valid           as LOGICAL                                              no-undo.
@@ -65,21 +65,45 @@ define frame displayitemframe
     priceItem                   colon 40   label "Price"                            view-as text size 40 by 1 
     skip(1)
 with side-labels width 100.
+procedure empty:
+   define output parameter allFieldsFilled    as logical initial true no-undo.
+    if numItem = "" then do:
+        message "Item Number is required." view-as ALERT-BOX ERROR.
+        allFieldsFilled = false.
+    end.
+    else if prodLine = "" then do:
+        message "Prod Line is required." view-as ALERT-BOX ERROR.
+        allFieldsFilled = false.
+    end.
+    else if typeItem = "" then do:
+        message "Item Type is required." view-as ALERT-BOX ERROR.
+        allFieldsFilled = false.
+    end.
+    else if statusItem = "" then do:
+        message "Status is required." view-as ALERT-BOX ERROR.
+        allFieldsFilled = false.
+    end.
+    else if pur_manItem = "" then do:
+        message "Purchase/Manufacture is required." view-as ALERT-BOX ERROR.
+        allFieldsFilled = false.
+    end.
+end procedure.
 procedure verification:
    define output parameter valid    as logical initial true no-undo.
 
     find first pt_mstr where pt_part = numItem no-lock no-error.
+    find first pl_mstr where pl_prod_line = prodLine no-lock no-error.
+    find first qad_wkfl where qad_key2 = statusItem no-lock no-error.
+
     if  available pt_mstr then do:
         message "Item already exist." view-as ALERT-BOX ERROR.
         valid=false.
     end. 
-    find first pl_mstr where pl_prod_line = prodLine no-lock no-error.
-    if not  available pl_mstr then do:
+    else if not  available pl_mstr then do:
         message "Prod Line doesn't exist." view-as ALERT-BOX ERROR.
         valid=false.
     end. 
-    find first qad_wkfl where qad_key2 = statusItem no-lock no-error.
-    if not  available qad_wkfl then do:
+    else if not  available qad_wkfl then do:
         message "Status doesn't exist." view-as ALERT-BOX ERROR.
         valid=false.
     end. 
@@ -98,6 +122,8 @@ mainloop:
             priceItem
         with frame combinedframe.
         hide FRAME combinedframe.
+        run empty(output valid).
+        if not valid then next.
         run verification(output valid).
         if not valid then next.
         display
