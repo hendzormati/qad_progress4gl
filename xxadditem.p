@@ -142,6 +142,24 @@ input from value(input_dir + file_name).
                 end.
                 input close.
 end procedure.
+procedure additem:
+    define input  parameter ip_item            as rowid.
+    find tt_item where rowid(tt_item) = ip_item no-lock no-error.
+    if not available tt_item then return.
+    create pt_mstr.
+    assign
+            pt_domain     = tt_item.domainItem
+            pt_part       = tt_item.numItem
+            pt_desc1      = tt_item.descItem
+            pt_prod_line  = tt_item.prodLine
+            pt_added      = tt_item.addedDate
+            pt_part_type  = tt_item.typeItem
+            pt_status     = tt_item.statusItem
+            pt_pm_code    = tt_item.pur_manItem
+            pt_price      = tt_item.priceItem.  
+        release pt_mstr.  
+        message "item " numItem " added succefully." view-as ALERT-BOX ERROR.    
+end procedure.
 input_dir = session:temp-directory.
 mainloop:
 repeat:
@@ -177,6 +195,7 @@ repeat:
                         run verification(input rowid(tt_item),output valid).
                         if not valid then next.
                         else do:
+                            run additem(input rowid(tt_item)).
                             display tt_item.
                             end.    
                     end.
