@@ -19,7 +19,7 @@ define variable     numItem         as character                                
 define variable     descItem        as character   initial "new item added from putty"      no-undo. /* pt_mstr.pt_desc1 */
 define variable     prodLine        as character   initial "Def"                            no-undo. /* pt_mstr.pt_prod_line */
 define variable     addedDate       as DATE        initial today                            no-undo. /* pt_mstr.pt_added */
-define variable     typeItem        as character   initial "BB"                             no-undo. /* pt_mstr.pt_part_type */
+define variable     typeItem        as character   initial "xx"                             no-undo. /* pt_mstr.pt_part_type */
 define variable     statusItem      as character   initial "ACTif"                          no-undo. /* pt_mstr.pt_status */
 define variable     pur_manItem     as character   initial "P"                              no-undo. /* pt_mstr.pt_pm_code */
 define variable     priceItem       as decimal     initial 0                                no-undo. /* pt_mstr.pt_price */
@@ -96,6 +96,7 @@ procedure verification:
 
     find first pt_mstr where pt_part = numItem no-lock no-error.
     find first pl_mstr where pl_prod_line = prodLine no-lock no-error.
+    find first code_mstr where code_fldname = "pt_part_type" and code_value = typeItem no-lock no-error.   
     find first qad_wkfl where qad_key2 = statusItem no-lock no-error.
 
     if  available pt_mstr then do:
@@ -105,11 +106,22 @@ procedure verification:
     else if not  available pl_mstr then do:
         message "Prod Line doesn't exist." view-as ALERT-BOX ERROR.
         valid=false.
-    end. 
-    else if not  available qad_wkfl then do:
-        message "Status doesn't exist." view-as ALERT-BOX ERROR.
+    end.
+    else if not  available code_mstr then do:
+        message "Item Type doesn't exist." view-as ALERT-BOX ERROR.
         valid=false.
-    end.     
+    end. 
+    else  do:
+        find first code_mstr where code_fldname = "pt_pm_code" and code_value = pur_manItem no-lock no-error.
+            if not  available qad_wkfl then do:
+                message "Status doesn't exist." view-as ALERT-BOX ERROR.
+                valid=false.
+            end.         
+            else if not  available code_mstr then do:
+                message "Purchase/Manufacture doesn't exist." view-as ALERT-BOX ERROR.
+                valid=false.
+            end.   
+        end.    
 end procedure.
 procedure init:
     numItem = "".
