@@ -116,9 +116,10 @@ procedure verification:
         define output parameter valid              as logical initial true no-undo.
         find tt_item where rowid(tt_item) = ip_item no-lock no-error.
         if not available tt_item then return.
-        find first pt_mstr  where pt_part = numItem         no-lock no-error.
-        find first pl_mstr  where pl_prod_line = prodLine   no-lock no-error.
-        find first qad_wkfl where qad_key2 = statusItem     no-lock no-error.
+        find first pt_mstr  where pt_part = tt_item.numItem         no-lock no-error.
+        find first pl_mstr  where pl_prod_line = tt_item.prodLine   no-lock no-error.
+        find first code_mstr where code_fldname = "pt_part_type" and code_value = tt_item.typeItem no-lock no-error.   
+        find first qad_wkfl where qad_key2 = tt_item.statusItem     no-lock no-error.
 
         if  available pt_mstr then do:
             message "Item already exist." view-as ALERT-BOX ERROR.
@@ -131,7 +132,21 @@ procedure verification:
         else if not  available qad_wkfl then do:
             message "Status doesn't exist." view-as ALERT-BOX ERROR.
             valid=false.
-        end.     
+        end.  else if not  available code_mstr then do:
+        message "Item Type doesn't exist." view-as ALERT-BOX ERROR.
+        valid=false.
+        end. 
+        else  do:
+            find first code_mstr where code_fldname = "pt_pm_code" and code_value = tt_item.pur_manItem no-lock no-error.
+                if not  available qad_wkfl then do:
+                    message "Status doesn't exist." view-as ALERT-BOX ERROR.
+                    valid=false.
+                end.         
+                else if not  available code_mstr then do:
+                    message "Purchase/Manufacture doesn't exist." view-as ALERT-BOX ERROR.
+                    valid=false.
+                end.   
+            end.     
 end procedure.
 procedure filltable:
 input from value(input_dir + file_name).
